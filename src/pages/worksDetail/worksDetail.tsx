@@ -148,6 +148,7 @@ export default defineComponent({
             </NFormItem> */}
             <NFormItem label=" ">
               <NButton type="primary" onClick={() => {
+                console.log(data.form)
                 formRef.value.validate((err: any) => {
                   if (!err) {
                     http({
@@ -155,8 +156,10 @@ export default defineComponent({
                       method: 'post',
                       data: data.form
                     }).then(res => {
-                      message.success(res.data.message)
-                      router.push('works')
+                      message.success(res.message)
+                      router.push({
+                        name: 'worksList'
+                      })
                       console.log(data.form)
                     })
                   }

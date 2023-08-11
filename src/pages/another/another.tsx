@@ -1,6 +1,6 @@
 import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NDataTable, NButton, NImage, NSpace, NTag } from 'naive-ui'
+import { NDataTable, NButton, NImage, NSpace, NTag, NPagination } from 'naive-ui'
 import http from '../../api/index'
 import type { Another } from '../../types/api/another'
 import type { ResponseData } from '../../types/api'
@@ -9,13 +9,19 @@ import './style.scss'
 
 interface Data {
   data: Another[]
+  page: number
+  pageSize: number
+  total: number
 }
 
 export default defineComponent({
   setup () {
     const router = useRouter()
     const data = reactive<Data>({
-      data: []
+      data: [],
+      page: 1,
+      pageSize: 10,
+      total: 0
     })
     const show = ref(false)
     const columns = [
@@ -57,17 +63,20 @@ export default defineComponent({
         }
       }
     ]
-    const total = ref(0)
-    const page = ref(1)
 
-    const getData = () => {
+    const getData = (page = 1) => {
       http({
         url: '/another/anotherList',
-        method: 'post'
+        method: 'post',
+        data: {
+          page,
+          pageSize: data.pageSize
+        }
       }).then((res) => {
         data.data = res.data.list
-        total.value = res.data.total
-        page.value = res.data.page
+        data.page = res.data.page
+        data.pageSize = res.data.pageSize
+        data.total = res.data.total
         console.log(res)
       })
     }
@@ -86,12 +95,15 @@ export default defineComponent({
             singleLine={false}
             data={data.data} 
             columns={columns}
-            pagination={{
-              page: page.value,
-              itemCount: total.value,
-              pageSize: 10,
-              showQuickJumper: true
-            }}></NDataTable>
+            pagination={false}></NDataTable>
+             <NSpace justify='center'>
+              <NPagination 
+                itemCount={data.total} 
+                pageSize={data.pageSize} 
+                page={data.page}
+                onUpdate:page={getData}>
+              </NPagination>
+            </NSpace>
           <AnotherModal 
             show={show.value}
             onCancel={() => {

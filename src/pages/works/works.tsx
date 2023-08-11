@@ -1,6 +1,6 @@
 import { defineComponent, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { NDataTable, NButton, NImage, NSpace, NTag } from 'naive-ui'
+import { NDataTable, NButton, NImage, NSpace, NTag, NPagination } from 'naive-ui'
 import http from '../../api/index'
 import './style.scss'
 import { Novel } from '../../types/api/novel'
@@ -13,17 +13,28 @@ export default defineComponent({
       {
         title: '名称',
         key: 'name',
-        fixed: 'left',
+        fixed: 'left' as 'left',
+        width: 350,
         render (row: Novel) {
           console.log(row)
           return (
-            <div>
-              <NSpace>
-                  {/* <img src={row.cover}></img> */}
+              <section style={{
+                display: 'grid',
+                gridTemplateColumns: '80px 1fr',
+                gap: '10px'
+              }}>
+                <section style={{
+                  width: '100%',
+                  height: '114px',
+                  background: 'rgb(62 55 55 / 8%)',
+                  // borderRadius: '4px'
+                }}>
                   <NImage 
                     src={row.cover} 
-                    width={80}
+                    height={114}
                     fallback-src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"></NImage>
+                </section>
+                  
                   <NSpace vertical>
                     <span>{row.name}</span>
                     <NSpace>
@@ -36,9 +47,7 @@ export default defineComponent({
                       }
                     </NSpace>
                   </NSpace>
-              </NSpace>
-              
-            </div>
+              </section>
           )
         }
       },
@@ -70,6 +79,7 @@ export default defineComponent({
       {
         title: '操作',
         key: 'actions',
+        width: 220,
         render (row: Novel) {
           return (
             <NSpace>
@@ -87,16 +97,25 @@ export default defineComponent({
       }
     ]
     const data = reactive({
-      data: []
+      data: [],
+      page: 1,
+      pageSize: 5,
+      total: 0
     })
 
-    const getData = () => {
+    const getData = (page = 1) => {
       http({
         url: '/novel/novelList',
-        method: 'post'
+        method: 'post',
+        data: {
+          page,
+          pageSize: data.pageSize
+        }
       }).then(res => {
-        console.log(res)
         data.data = res.data.list
+        data.page = res.data.page
+        data.pageSize = res.data.pageSize
+        data.total = res.data.total
       })
     }
     getData()
@@ -113,9 +132,16 @@ export default defineComponent({
             singleLine={false}
             data={data.data} 
             columns={columns}
-            pagination={{
-              pageSize: 10
-            }}></NDataTable>
+            pagination={false}></NDataTable>
+            <NSpace justify='center'>
+              <NPagination 
+                itemCount={data.total} 
+                pageSize={data.pageSize} 
+                page={data.page}
+                onUpdate:page={getData}>
+              </NPagination>
+            </NSpace>
+           
         </NSpace>
       )
     }
