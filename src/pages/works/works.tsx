@@ -1,6 +1,8 @@
 import { defineComponent, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { NDataTable, NButton, NImage, NSpace, NTag, NPagination } from 'naive-ui'
+import { NDataTable, NButton, NImage, NSpace, NTag, NPagination, NInput, NSelect } from 'naive-ui'
+import { LoQuery, LoQueryItem } from '../../components/query/query'
+import { Container } from '../../components/container/container'
 import http from '../../api/index'
 import './style.scss'
 import { Novel } from '../../types/api/novel'
@@ -121,28 +123,86 @@ export default defineComponent({
     getData()
 
     return () => {
+      const slots = {
+        search: () => (
+          <LoQuery labelWidth={80}>
+            <LoQueryItem label="名称：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="原名：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="作者：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="作者：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="作者：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="作者：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="作者：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="作者：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="作者：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="作者：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+          </LoQuery>
+        ),
+        action: () => (
+          <NButton onClick={() => {
+            router.push('worksDetail')
+          }}>添加</NButton>
+        )
+      }
       return (
-        <NSpace vertical size={20}>
-          <section style={{textAlign: "right"}}>
-            <NButton onClick={() => {
-              router.push('worksDetail')
-            }}>添加</NButton>
-          </section>
-          <NDataTable 
-            singleLine={false}
-            data={data.data} 
-            columns={columns}
-            pagination={false}></NDataTable>
-            <NSpace justify='center'>
-              <NPagination 
-                itemCount={data.total} 
-                pageSize={data.pageSize} 
-                page={data.page}
-                onUpdate:page={getData}>
-              </NPagination>
+        <Container v-slots={slots}>
+         
+            <NSpace justify='center' vertical size={20}>
+              <NDataTable 
+                singleLine={false}
+                data={data.data} 
+                columns={columns}
+                pagination={false}></NDataTable>
+              <NSpace justify='center'>
+                <NPagination 
+                  itemCount={data.total} 
+                  pageSize={data.pageSize} 
+                  page={data.page}
+                  onUpdate:page={getData}>
+                </NPagination>
+              </NSpace>
             </NSpace>
-           
-        </NSpace>
+        </Container>
       )
     }
   }

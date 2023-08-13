@@ -1,10 +1,12 @@
 import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NDataTable, NButton, NImage, NSpace, NTag, NPagination } from 'naive-ui'
+import { NDataTable, NButton, NImage, NSpace, NTag, NPagination, NInput } from 'naive-ui'
 import http from '../../api/index'
 import type { Another } from '../../types/api/another'
 import type { ResponseData } from '../../types/api'
 import { AnotherModal } from '../../modal/anotherModal/anotherModal'
+import { Container } from '../../components/container/container'
+import { LoQuery, LoQueryItem } from '../../components/query/query'
 import './style.scss'
 
 interface Data {
@@ -45,7 +47,12 @@ export default defineComponent({
       },
       {
         title: '国籍',
-        key: 'title'
+        key: 'title',
+        render (row: Another) {
+          return (
+            <span>{row.country.countryName}</span>
+          )
+        }
       },
       {
         title: '操作',
@@ -83,20 +90,36 @@ export default defineComponent({
     getData()
     
     return () => {
-      
+      const slots = {
+        search: () => (
+          <LoQuery labelWidth={80}>
+            <LoQueryItem label="名称：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+            <LoQueryItem label="原名：">
+              <NInput clearable onUpdate:value={(val) => {
+                // data.form.name = val
+              }}></NInput>
+            </LoQueryItem>
+          </LoQuery>
+        ),
+        action: () => (
+          <NButton onClick={() => {
+            show.value =  true
+          }}>添加</NButton>
+        )
+      }
       return (
-        <NSpace vertical size={20}>
-          <section style={{textAlign: "right"}}>
-            <NButton onClick={() => {
-              show.value =  true
-            }}>添加</NButton>
-          </section>
-          <NDataTable 
-            singleLine={false}
-            data={data.data} 
-            columns={columns}
-            pagination={false}></NDataTable>
-             <NSpace justify='center'>
+        <Container v-slots={slots}>
+          <NSpace vertical size={20}>
+            <NDataTable 
+              singleLine={false}
+              data={data.data} 
+              columns={columns}
+              pagination={false}></NDataTable>
+            <NSpace justify='center'>
               <NPagination 
                 itemCount={data.total} 
                 pageSize={data.pageSize} 
@@ -113,7 +136,8 @@ export default defineComponent({
               show.value = false
             }}
             ></AnotherModal>
-        </NSpace>
+          </NSpace>
+        </Container>  
       )
     }
   }
