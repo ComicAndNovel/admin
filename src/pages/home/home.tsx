@@ -12,8 +12,8 @@ export default defineComponent({
     const route = useRoute()
     const menuOptions: MenuOption[] = [
       {
-        key: '/another',
-        label: () => <RouterLink to="/another">作者列表</RouterLink>
+        key: '/author',
+        label: () => <RouterLink to="/author">作者列表</RouterLink>
       },
       {
         key: '/worksList',

@@ -6,6 +6,7 @@ export interface Country {
 export interface Language {
   id: number
   name: string
+  code: string
 }
 
 export interface Tags {

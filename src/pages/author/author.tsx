@@ -2,7 +2,7 @@ import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NDataTable, NButton, NImage, NSpace, NTag, NPagination, NInput } from 'naive-ui'
 import http from '../../api/index'
-import type { Another } from '../../types/api/another'
+import type { Another } from '../../types/api/author'
 import type { ResponseData } from '../../types/api'
 import { AnotherModal } from '../../modal/anotherModal/anotherModal'
 import { Container } from '../../components/container/container'
@@ -50,7 +50,7 @@ export default defineComponent({
         key: 'title',
         render (row: Another) {
           return (
-            <span>{row.country.countryName}</span>
+            <span>{row.country.name}</span>
           )
         }
       },
@@ -73,7 +73,7 @@ export default defineComponent({
 
     const getData = (page = 1) => {
       http({
-        url: '/another/anotherList',
+        url: '/author/authorList',
         method: 'post',
         data: {
           page,

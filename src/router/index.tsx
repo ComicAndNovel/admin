@@ -5,12 +5,12 @@ export default [
     path: '/',
     name: 'home',
     component: () => import('../pages/home/home'),
-    redirect: '/another',
+    redirect: '/author',
     children: [
       {
-        path: '/another',
-        name: 'another',
-        component: () => import('../pages/another/another')
+        path: '/author',
+        name: 'author',
+        component: () => import('../pages/author/author')
       },
       {
         path: '/anotherDetail',

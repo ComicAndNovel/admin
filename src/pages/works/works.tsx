@@ -41,7 +41,7 @@ export default defineComponent({
                     <span>{row.name}</span>
                     <NSpace>
                       {
-                        row.another?.map(item => {
+                        row.author?.map(item => {
                           return (
                             <NTag>{item.name}</NTag>
                           )
@@ -54,6 +54,10 @@ export default defineComponent({
         }
       },
       {
+        title: '原名',
+        key: 'originalName',
+      },
+      {
         title: '卷数',
         key: 'volume',
       },
@@ -64,15 +68,24 @@ export default defineComponent({
       
       {
         title: '地区',
-        key: 'area'
+        key: 'area',
+        render (row: Novel) {
+          return (
+            <section>{row.country?.name}</section>
+          )
+        }
       },
       {
         title: '语言',
-        key: 'language'
+        render (row: Novel) {
+          return (
+            <section>{row.language?.name}</section>
+          )
+        }
       },
       {
         title: '发售时间',
-        key: ''
+        key: 'releaseTime'
       },
       {
         title: '更新状态',
@@ -102,7 +115,12 @@ export default defineComponent({
       data: [],
       page: 1,
       pageSize: 5,
-      total: 0
+      total: 0,
+      query: {
+        name: '',
+        originalName: '',
+        authorName: ''
+      }
     })
 
     const getData = (page = 1) => {
@@ -111,7 +129,8 @@ export default defineComponent({
         method: 'post',
         data: {
           page,
-          pageSize: data.pageSize
+          pageSize: data.pageSize,
+          ...data.query
         }
       }).then(res => {
         data.data = res.data.list
@@ -125,54 +144,27 @@ export default defineComponent({
     return () => {
       const slots = {
         search: () => (
-          <LoQuery labelWidth={80}>
+          <LoQuery 
+            labelWidth={80} 
+            onSearch={() => {
+              getData()
+              // console.log(query)
+            }}>
             <LoQueryItem label="名称：">
               <NInput clearable onUpdate:value={(val) => {
+                data.query.name = val
                 // data.form.name = val
               }}></NInput>
             </LoQueryItem>
             <LoQueryItem label="原名：">
               <NInput clearable onUpdate:value={(val) => {
+                data.query.originalName = val
                 // data.form.name = val
               }}></NInput>
             </LoQueryItem>
             <LoQueryItem label="作者：">
               <NInput clearable onUpdate:value={(val) => {
-                // data.form.name = val
-              }}></NInput>
-            </LoQueryItem>
-            <LoQueryItem label="作者：">
-              <NInput clearable onUpdate:value={(val) => {
-                // data.form.name = val
-              }}></NInput>
-            </LoQueryItem>
-            <LoQueryItem label="作者：">
-              <NInput clearable onUpdate:value={(val) => {
-                // data.form.name = val
-              }}></NInput>
-            </LoQueryItem>
-            <LoQueryItem label="作者：">
-              <NInput clearable onUpdate:value={(val) => {
-                // data.form.name = val
-              }}></NInput>
-            </LoQueryItem>
-            <LoQueryItem label="作者：">
-              <NInput clearable onUpdate:value={(val) => {
-                // data.form.name = val
-              }}></NInput>
-            </LoQueryItem>
-            <LoQueryItem label="作者：">
-              <NInput clearable onUpdate:value={(val) => {
-                // data.form.name = val
-              }}></NInput>
-            </LoQueryItem>
-            <LoQueryItem label="作者：">
-              <NInput clearable onUpdate:value={(val) => {
-                // data.form.name = val
-              }}></NInput>
-            </LoQueryItem>
-            <LoQueryItem label="作者：">
-              <NInput clearable onUpdate:value={(val) => {
+                data.query.authorName = val
                 // data.form.name = val
               }}></NInput>
             </LoQueryItem>
@@ -184,9 +176,14 @@ export default defineComponent({
           }}>添加</NButton>
         )
       }
+      const paginationSlots = {
+        prefix: ({ itemCount }: { itemCount: number }) => (
+          <section>总共{itemCount}条</section>
+        )
+      }
+
       return (
         <Container v-slots={slots}>
-         
             <NSpace justify='center' vertical size={20}>
               <NDataTable 
                 singleLine={false}
@@ -198,7 +195,8 @@ export default defineComponent({
                   itemCount={data.total} 
                   pageSize={data.pageSize} 
                   page={data.page}
-                  onUpdate:page={getData}>
+                  onUpdate:page={getData}
+                  v-slots={paginationSlots}>
                 </NPagination>
               </NSpace>
             </NSpace>

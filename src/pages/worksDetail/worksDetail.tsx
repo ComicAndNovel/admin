@@ -5,6 +5,8 @@ import { NForm, NFormItem, NInput, NInputNumber, useMessage, NRadioGroup, NRadio
 import { ImageUpload } from '../../components/upload/upload'
 import type { FormRules } from "naive-ui"
 import http from '../../api/index'
+import { Country, Language } from "../../types/api/common"
+import { Author } from "../../types/api/author"
 
 interface FormProps {
   cover?: string
@@ -14,11 +16,17 @@ interface FormProps {
   volume?: number
   page?: number
   releaseTime?: string
+  countryId?: number
+  languageId?: number
+  authorId?: number[]
 }
 
 interface ReactiveData {
   form: FormProps
   rules: FormRules,
+  countryList: Country[]
+  languageList: Language[]
+  authorList: Author[]
 }
 
 export default defineComponent({
@@ -26,39 +34,6 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
     const formRef = ref()
-    const areaOptions = [
-      {
-        label: '中国大陆'
-      },
-      {
-        label: '中国港澳'
-      },
-      {
-        label: '中国台湾'
-      },
-      {
-        label: '日本'
-      }
-    ]
-    const languageOptions = [
-      {
-        label: '中国大陆（简体中文）'
-      },
-      {
-        label: '中国港澳（繁体中文）'
-      },
-      {
-        label: '中国台湾（繁体中文）'
-      },
-      {
-        label: '日本（日语）'
-      }
-    ]
-    const anotherOptions = [
-      {
-        label: 'ねことうふ'
-      }
-    ]
 
     const data = reactive<ReactiveData>({
       form: {},
@@ -73,6 +48,11 @@ export default defineComponent({
           message: '请输入名称',
           trigger: ['blur']
         },
+        // authorId: {
+        //   required: true,
+        //   message: '请选择作者',
+        //   trigger: 'blur'
+        // },
         // volume: {
         //   required: true,
         //   message: '卷数不能为空',
@@ -83,9 +63,59 @@ export default defineComponent({
           message: '请选择国家/地区',
           trigger: ['blur', 'change']
         }
-      }
+      },
+      countryList: [],
+      authorList: [],
+      languageList: []
     })
     const message = useMessage()
+    const getData = () => {
+      http({
+        url: '/language/languageList',
+        method: 'get'
+      }).then(res => {
+        data.languageList = res.data
+      })
+      http({
+        url: '/country/countryList',
+        method: 'get',
+        data: {}
+      }).then(res => {
+        data.countryList = res.data
+      })
+    }
+
+    const getAuthorList = (name: string = '') => {
+      http({
+        url: '/author/authorList',
+        method: 'post',
+        data: {
+          page: 1,
+          pageSize: 10,
+          name
+        }
+      }).then(res => {
+        data.authorList = res.data.list
+      })
+    }
+
+    const getDetailData = () => {
+      if (route.query.id) {
+        http({
+          url: '/novel/novelDetail',
+          method: 'get',
+          params: {
+            id: route.query.id
+          }
+        }).then(res => {
+          data.form = res.data
+        })
+      }
+    }
+
+    getDetailData()
+    getAuthorList()
+    getData()
 
     return () => {
       return (
@@ -116,9 +146,20 @@ export default defineComponent({
                 data.form.desc = val
               }}></NInput>
             </NFormItem>
-            {/* <NFormItem label="作者：">
-              <NSelect options={anotherOptions}></NSelect>
-            </NFormItem> */}
+            <NFormItem label="作者：" path="authorId" >
+              <NSelect 
+                multiple 
+                remote 
+                filterable
+                options={data.authorList} 
+                labelField="name" 
+                valueField="id"
+                onSearch={getAuthorList}
+                onUpdate:value={val => {
+                  data.form.authorId = val
+                  console.log(val)
+                }}></NSelect>
+            </NFormItem>
             <NFormItem label="当前卷数：" path="volume">
               <NInputNumber onUpdate:value={(val) => {
                 data.form.volume = val as number
@@ -129,12 +170,26 @@ export default defineComponent({
                 data.form.page = val as number
               }}></NInputNumber>
             </NFormItem>
-            {/* <NFormItem label="地区：">
-              <NSelect options={areaOptions}></NSelect>
+            <NFormItem label="地区：">
+              <NSelect 
+                options={data.countryList} 
+                labelField="name" 
+                valueField="id"
+                onUpdate:value={val => {
+                  data.form.countryId = val
+                  console.log(val)
+                }}></NSelect>
             </NFormItem>
             <NFormItem label="语言：">
-              <NSelect options={languageOptions}></NSelect>
-            </NFormItem> */}
+              <NSelect 
+                options={data.languageList} 
+                labelField="name" 
+                valueField="id"
+                onUpdate:value={val => {
+                  data.form.languageId = val
+                  console.log(val)
+                }}></NSelect>
+            </NFormItem>
             <NFormItem label="发售时间：" path="releaseTime">
               <NDatePicker value-format="yyyy-MM-dd" onUpdate:formattedValue={(val) => {
                 data.form.releaseTime = val

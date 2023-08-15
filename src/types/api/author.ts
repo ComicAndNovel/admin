@@ -3,7 +3,7 @@ export interface Country {
   countryName: string
 }
 
-export interface Another {
+export interface Author {
   id: number
   name: string
   originalName: string

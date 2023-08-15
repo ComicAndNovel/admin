@@ -60,6 +60,7 @@ export const LoQuery = defineComponent({
       default: true
     }
   },
+  emits: ['search'],
   setup (props, ctx) {
     const data = reactive({
       model: {},
@@ -70,7 +71,6 @@ export const LoQuery = defineComponent({
     const autoColumn = ref()
     const vnode = ctx.slots.default?.()
    
-
     onMounted(() => {
       autoColumn.value = new AutoColumn({
         maxLine: props.maxLine,
@@ -102,7 +102,7 @@ export const LoQuery = defineComponent({
         search: () => (
           <>
             <NButton type="primary" onClick={() => {
-
+              ctx.emit('search')
             }}>查询</NButton>
             <NButton onClick={() => {}}>重置</NButton>
           </>
@@ -135,6 +135,13 @@ export const LoQuery = defineComponent({
     }
   }
 })
+
+export interface LoQueryItemProps {
+  label: string
+  exclude: boolean
+  column: number
+  show: boolean
+}
 
 export const LoQueryItem = defineComponent({
   props: {
