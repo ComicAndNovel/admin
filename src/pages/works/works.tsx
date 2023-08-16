@@ -1,6 +1,6 @@
 import { defineComponent, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { NDataTable, NButton, NImage, NSpace, NTag, NPagination, NInput, NSelect } from 'naive-ui'
+import { NDataTable, NButton, NImage, NSpace, NTag, NPagination, NInput, useDialog, useMessage } from 'naive-ui'
 import { LoQuery, LoQueryItem } from '../../components/query/query'
 import { Container } from '../../components/container/container'
 import http from '../../api/index'
@@ -10,6 +10,8 @@ import { Novel } from '../../types/api/novel'
 export default defineComponent({
   setup () {
     const router = useRouter()
+    const dialog = useDialog()
+    const message = useMessage()
     const show = ref(false)
     const columns = [
       {
@@ -105,7 +107,35 @@ export default defineComponent({
                 }
               })}>编辑</NButton>
               <NButton type="primary">详情</NButton>
-              <NButton type="error">删除</NButton>
+              <NButton type="error" onClick={() => {
+                const d = dialog.warning({
+                  title: '警告',
+                  content: '是否确定要删除当前书籍',
+                  positiveText: '确定',
+                  negativeText: '取消',
+                  onPositiveClick: () => {
+                    d.loading = true
+                    return new Promise(resolve => {
+                      http({
+                        url: '/novel/remove',
+                        method: 'delete',
+                        params: {
+                          id: row.id
+                        }
+                      }).then(res => {
+                        message.success(res.message)
+                        getData()
+                      }).finally(() => {
+                        // d.loading
+                        resolve(null)
+                      })
+                    })
+                  },
+                  onNegativeClick: () => {
+
+                  }
+                })
+              }}>删除</NButton>
             </NSpace>
           )
         }

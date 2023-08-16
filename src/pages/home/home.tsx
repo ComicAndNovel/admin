@@ -1,6 +1,6 @@
 import { defineComponent } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
-import { NMenu, NIcon, NLayoutSider, NLayout, NConfigProvider, NMessageProvider  } from 'naive-ui'
+import { NMenu, NLayoutSider, NLayout, NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui'
 import { zhCN, dateZhCN } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 
@@ -35,9 +35,11 @@ export default defineComponent({
             <NLayout>
               <div class="main-container">
                 <NConfigProvider locale={zhCN} dateLocale={dateZhCN}>
-                  <NMessageProvider>
-                    <RouterView></RouterView>
-                  </NMessageProvider>
+                  <NDialogProvider>
+                    <NMessageProvider>
+                      <RouterView></RouterView>
+                    </NMessageProvider>
+                  </NDialogProvider>
                 </NConfigProvider>
                 
               </div>

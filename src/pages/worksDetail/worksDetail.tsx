@@ -1,6 +1,7 @@
 import { defineComponent, reactive, ref } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { NForm, NFormItem, NInput, NInputNumber, useMessage, NRadioGroup, NRadio, NButton, NDatePicker, NSelect } from 'naive-ui'
+import dayjs from "dayjs"
 
 import { ImageUpload } from '../../components/upload/upload'
 import type { FormRules } from "naive-ui"
@@ -108,7 +109,11 @@ export default defineComponent({
             id: route.query.id
           }
         }).then(res => {
+          console.log(res.data)
           data.form = res.data
+          data.form.languageId = res.data.language.id
+          data.form.countryId = res.data.country.id
+          data.form.authorId = res.data.author.map((item: Author) => item.id)
         })
       }
     }
@@ -132,19 +137,29 @@ export default defineComponent({
             </NFormItem>
 
             <NFormItem label="作品译名：" path="name">
-              <NInput clearable onUpdate:value={(val) => {
+              <NInput 
+                clearable 
+                value={data.form.name}
+                onUpdate:value={(val) => {
                 data.form.name = val
               }}></NInput>
             </NFormItem>
             <NFormItem label="作品名称：" path="originalName">
-              <NInput clearable onUpdate:value={(val) => {
-                data.form.originalName = val
-              }}></NInput>
+              <NInput 
+                clearable
+                value={data.form.originalName} 
+                onUpdate:value={(val) => {
+                  data.form.originalName = val
+                }}></NInput>
             </NFormItem>
             <NFormItem label="作品简介：" path="desc">
-              <NInput type="textarea" clearable onUpdate:value={(val) => {
-                data.form.desc = val
-              }}></NInput>
+              <NInput 
+                type="textarea" 
+                value={data.form.desc}  
+                clearable 
+                onUpdate:value={(val) => {
+                  data.form.desc = val
+                }}></NInput>
             </NFormItem>
             <NFormItem label="作者：" path="authorId" >
               <NSelect 
@@ -152,6 +167,7 @@ export default defineComponent({
                 remote 
                 filterable
                 options={data.authorList} 
+                value={data.form.authorId}
                 labelField="name" 
                 valueField="id"
                 onSearch={getAuthorList}
@@ -161,18 +177,21 @@ export default defineComponent({
                 }}></NSelect>
             </NFormItem>
             <NFormItem label="当前卷数：" path="volume">
-              <NInputNumber onUpdate:value={(val) => {
-                data.form.volume = val as number
-              }}></NInputNumber>
+              <NInputNumber 
+                value={data.form.volume}
+                onUpdate:value={(val) => {
+                  data.form.volume = val as number
+                }}></NInputNumber>
             </NFormItem>
             <NFormItem label="页数：" path="page">
-              <NInputNumber onUpdate:value={(val) => {
+              <NInputNumber value={data.form.page} onUpdate:value={(val) => {
                 data.form.page = val as number
               }}></NInputNumber>
             </NFormItem>
             <NFormItem label="地区：">
               <NSelect 
                 options={data.countryList} 
+                value={data.form.countryId}
                 labelField="name" 
                 valueField="id"
                 onUpdate:value={val => {
@@ -183,6 +202,7 @@ export default defineComponent({
             <NFormItem label="语言：">
               <NSelect 
                 options={data.languageList} 
+                value={data.form.languageId}
                 labelField="name" 
                 valueField="id"
                 onUpdate:value={val => {
@@ -191,7 +211,10 @@ export default defineComponent({
                 }}></NSelect>
             </NFormItem>
             <NFormItem label="发售时间：" path="releaseTime">
-              <NDatePicker value-format="yyyy-MM-dd" onUpdate:formattedValue={(val) => {
+              <NDatePicker 
+                value-format="yyyy-MM-dd" 
+                value={data.form.releaseTime ? dayjs(data.form.releaseTime).valueOf() : undefined}
+                  onUpdate:formattedValue={(val) => {
                 data.form.releaseTime = val
               }}></NDatePicker>
             </NFormItem>
