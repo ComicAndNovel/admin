@@ -1,6 +1,6 @@
 export interface Country {
-  countryId: number
-  countryName: string
+  id: number
+  name: string
 }
 
 export interface Author {

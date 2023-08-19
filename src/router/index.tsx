@@ -13,11 +13,6 @@ export default [
         component: () => import('../pages/author/author')
       },
       {
-        path: '/anotherDetail',
-        name: 'anotherDetail',
-        component: () => import('../modal/anotherModal/anotherModal')
-      },
-      {
         path: '/worksList',
         name: 'worksList',
         component: () => import('../pages/works/works')

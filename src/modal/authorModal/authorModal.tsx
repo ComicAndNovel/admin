@@ -1,4 +1,4 @@
-import { defineComponent, reactive, ref } from "vue"
+import { defineComponent, reactive, ref, watch } from "vue"
 import { NForm, NFormItem, NInput, NModal, NSpace, NButton, NSelect } from 'naive-ui'
 import { ImageUpload } from '../../components/upload/upload'
 import http from '../../api/index'
@@ -6,23 +6,28 @@ import { Country } from "../../types/api/common"
 
 import type { FormRules } from "naive-ui"
 import type { PropType } from 'vue'
+import { Author } from "../../types/api/author"
 
 interface Data {
-  form: AnotherForm
+  form: AuthorForm
   rules: FormRules,
   countryList: Country[]
 }
 
-interface AnotherForm {
+interface AuthorForm {
   name?: string
   originalName?: string
   countryId?: number
 }
 
-export const AnotherModal = defineComponent({
+export const AuthorModal = defineComponent({
   props: {
     show: {
       type: Boolean as PropType<boolean>
+    },
+    query: {
+      type: Object as PropType<Partial<Author>>,
+      default: () => {}
     }
   },
   emits: ['close', 'cancel', 'confirm'],
@@ -32,7 +37,8 @@ export const AnotherModal = defineComponent({
     const data = reactive<Data>({
       countryList: [],
       form: {
-        countryId: undefined
+        ...props.query,
+        countryId: props.query.country?.id
       },
       rules: {
         name: {
@@ -53,6 +59,7 @@ export const AnotherModal = defineComponent({
       }
     })
 
+    console.log(data.form)
     const getData = () => {
       http({
         url: '/country/countryList',
@@ -62,6 +69,13 @@ export const AnotherModal = defineComponent({
         console.log(res)
       })
     }
+    watch(() => props.query, (val) => {
+      console.log('=======', val)
+      data.form = {
+        ...val,
+        countryId: val.country?.id
+      }
+    })
 
     getData()
 
@@ -75,8 +89,11 @@ export const AnotherModal = defineComponent({
           style={{
             width: '60vw'
           }}
-          
           maskClosable={false}
+          onClose={() => {
+            console.log(1)
+            emit('close')
+          }}
           onUpdateShow={() => {
             console.log(2)
             emit('close')
@@ -89,12 +106,12 @@ export const AnotherModal = defineComponent({
             rules={data.rules}
             ref={formRef}>
             <NFormItem label="作者译名：" path="name">
-              <NInput clearable value={data.form.name} onChange={(val) => {
+              <NInput clearable value={data.form.name} onUpdate:value={(val) => {
                 data.form.name = val
               }}></NInput>
             </NFormItem>
             <NFormItem label="作者名称：" path="originalName">
-              <NInput clearable value={data.form.originalName}  onChange={(val) => {
+              <NInput clearable value={data.form.originalName}  onUpdate:value={(val) => {
                 data.form.originalName = val
               }}></NInput>
             </NFormItem>
@@ -106,9 +123,6 @@ export const AnotherModal = defineComponent({
                 valueField="id"
                 onUpdate:value={(val) => {
                   data.form.countryId = val
-                }}
-                onChange={(val) => {
-                  data.form.countryId = val
                 }}></NSelect>
             </NFormItem>
             <NFormItem label=" ">
@@ -118,19 +132,17 @@ export const AnotherModal = defineComponent({
                   emit('cancel')
                   }}>取消</NButton>
                 <NButton type="primary" onClick={() => {
-                  console.log(data.form)
-                  // formRef.value.validate((err: any) => {
-                  //   if (!err) {
-                  //     console.log('success')
+                  formRef.value.validate((err: any) => {
+                    if (!err) {
                       http({
-                        url: 'another/save',
+                        url: 'author/save',
                         method: 'post',
                         data: data.form
                       }).then(res => {
                         emit('confirm')
                       })
-                    // }
-                  // })
+                    }
+                  })
                  
                  
                 }}>保存</NButton>

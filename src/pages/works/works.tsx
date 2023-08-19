@@ -20,7 +20,6 @@ export default defineComponent({
         fixed: 'left' as 'left',
         width: 350,
         render (row: Novel) {
-          console.log(row)
           return (
               <section style={{
                 display: 'grid',
@@ -144,7 +143,7 @@ export default defineComponent({
     const data = reactive({
       data: [],
       page: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 0,
       query: {
         name: '',

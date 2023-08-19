@@ -25,6 +25,7 @@ http.interceptors.request.use(config => {
       token: token
     } as unknown as AxiosRequestHeaders
   }
+  console.log(config)
 
   return config
 }, (err: any) => {

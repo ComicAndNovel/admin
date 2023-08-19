@@ -13,7 +13,7 @@ interface FormProps {
   cover?: string
   name?: string
   originalName?: string
-  desc?: string
+  description?: string
   volume?: number
   page?: number
   releaseTime?: string
@@ -111,8 +111,8 @@ export default defineComponent({
         }).then(res => {
           console.log(res.data)
           data.form = res.data
-          data.form.languageId = res.data.language.id
-          data.form.countryId = res.data.country.id
+          data.form.languageId = res.data.language?.id || null
+          data.form.countryId = res.data.country?.id || null
           data.form.authorId = res.data.author.map((item: Author) => item.id)
         })
       }
@@ -155,10 +155,10 @@ export default defineComponent({
             <NFormItem label="作品简介：" path="desc">
               <NInput 
                 type="textarea" 
-                value={data.form.desc}  
+                value={data.form.description}  
                 clearable 
                 onUpdate:value={(val) => {
-                  data.form.desc = val
+                  data.form.description = val
                 }}></NInput>
             </NFormItem>
             <NFormItem label="作者：" path="authorId" >
