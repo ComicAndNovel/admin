@@ -5,7 +5,7 @@ export interface Novel {
   id: number
   cover: string | undefined
   name: string
-  author: Author[]
+  authors: Author[]
   volume: number
   page: number
   releaseTime: string

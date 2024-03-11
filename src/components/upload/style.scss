@@ -1,0 +1,47 @@
+@import '../../assets/css/mixins.scss';
+
+.image-preview-container, .image-upload-container {
+  width: 160px;
+  height: 200px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative;
+}
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  &-desc {
+    color: #999999;
+    font-size: 13px;
+  }
+}
+.space-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  span {
+    width: 80%;
+    display: inline-block;
+    @include ellipse(1);
+  }
+}
+.image-preview-mask {
+  width: calc(100% - 36px);
+  height: calc(100% - 20px);
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: none;
+}
+.image-preview-container:hover .image-preview-mask {
+  display: flex;
+}

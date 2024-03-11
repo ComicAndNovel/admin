@@ -16,8 +16,8 @@ export default defineComponent({
         label: () => <RouterLink to="/author">作者列表</RouterLink>
       },
       {
-        key: '/worksList',
-        label: () => <RouterLink to="/worksList">漫画小说列表</RouterLink>
+        key: '/books',
+        label: () => <RouterLink to="/books">漫画小说列表</RouterLink>
       },
     ]
 

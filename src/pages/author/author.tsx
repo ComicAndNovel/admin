@@ -37,7 +37,7 @@ export default defineComponent({
     const columns = [
       {
         title: '译名',
-        key: 'no',
+        key: 'name',
         render (row: Author) {
           return (
             <div>{row.name}</div>
@@ -46,7 +46,7 @@ export default defineComponent({
       },
       {
         title: '名称',
-        key: 'no',
+        key: 'originalName',
         render (row: Author) {
           return (
             <div>{row.originalName}</div>
@@ -71,17 +71,17 @@ export default defineComponent({
             <NSpace>
               <NButton 
                 onClick={() => {
-                http({
-                  url: '/author/authorDetail',
-                  method: 'get',
-                  params: {
-                    id: row.id
-                  }
-                }).then((res) => {
-                  data.authorModalQuery = res.data
-                  show.value = true
-                })
-              }}>编辑</NButton>
+                  http({
+                    url: '/author/authorDetail',
+                    method: 'get',
+                    params: {
+                      id: row.id
+                    }
+                  }).then((res) => {
+                    data.authorModalQuery = res.data
+                    show.value = true
+                  })
+                }}>编辑</NButton>
                <NButton type="error" onClick={() => {
                 const d = dialog.warning({
                   title: '警告',

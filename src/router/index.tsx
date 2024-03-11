@@ -13,14 +13,24 @@ export default [
         component: () => import('../pages/author/author')
       },
       {
-        path: '/worksList',
-        name: 'worksList',
-        component: () => import('../pages/works/works')
+        path: '/books',
+        name: 'books',
+        component: () => import('../pages/books/books')
       },
       {
-        path: '/worksDetail',
-        name: 'worksDetail',
-        component: () => import('../pages/worksDetail/worksDetail')
+        path: '/booksDetail',
+        name: 'booksDetail',
+        component: () => import('../pages/booksDetail/booksDetail')
+      },
+      {
+        path: '/volume',
+        name: 'volume',
+        component: () => import('../pages/volume/volume')
+      },
+      {
+        path: '/chapter',
+        name: 'chapter',
+        component: () => import('../pages/chapter/chapter')
       },
     ]
   },

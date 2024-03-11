@@ -3,6 +3,7 @@ import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios'
 import { createDiscreteApi } from 'naive-ui'
 import status from './status'
 import { BASE_URL } from '../config'
+import { toCamelCase } from '../utils'
 
 const { message } = createDiscreteApi(
   ['message'],
@@ -10,7 +11,7 @@ const { message } = createDiscreteApi(
 
 const http = axios.create({
   baseURL: BASE_URL,
-  timeout: 10 * 1000,
+  timeout: 3600 * 1000,
   // withCredentials: true
 })
 
@@ -25,11 +26,9 @@ http.interceptors.request.use(config => {
       token: token
     } as unknown as AxiosRequestHeaders
   }
-  console.log(config)
 
   return config
 }, (err: any) => {
-    console.log('=====')
   console.log(err)
   // 对请求错误做些什么
   Promise.reject(err)
@@ -37,8 +36,8 @@ http.interceptors.request.use(config => {
 
 http.interceptors.response.use(res => {
   // 对响应数据做点什么
-  if (res.status === 200 && res.data.code === 200) {
-    return res.data
+  if (res.status === 200 || res.status === 201 && res.data.code === 200) {
+    return toCamelCase(res.data)
   } else {
     message.warning(res.data.message)
     return Promise.reject(res.data)
