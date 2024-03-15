@@ -1,5 +1,5 @@
 import { defineComponent, reactive, ref, onMounted, onUnmounted } from "vue"
-import { NForm, NFormItem, NButton, NSpace } from 'naive-ui'
+import { NForm, NFormItem, NButton, NSpace, FormItemProps } from 'naive-ui'
 import { AutoColumn } from './autoColumn'
 import './style.scss'
 
@@ -136,12 +136,11 @@ export const LoQuery = defineComponent({
   }
 })
 
-export interface LoQueryItemProps {
-  label: string
+export type LoQueryItemProps = {
   exclude: boolean
   column: number
   show: boolean
-}
+} & FormItemProps
 
 export const LoQueryItem = defineComponent({
   props: {
@@ -156,7 +155,7 @@ export const LoQueryItem = defineComponent({
       default: true
     }
   },
-  setup(props, ctx) {
+  setup(props: LoQueryItemProps, ctx) {
       return () => {
         return props.show ? (
           <section

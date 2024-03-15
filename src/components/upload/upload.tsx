@@ -113,7 +113,7 @@ export const ImageUpload = defineComponent({
                 previewedImgProps={{
                   height: 400,
                 }}></NImage>
-              <div class='image-preview-mask'>
+              {/* <div class='image-preview-mask'>
                 <div
                   onClick={() => {
                     console.log(1)
@@ -122,16 +122,21 @@ export const ImageUpload = defineComponent({
                   }}>
                   <NIcon size={20}>{deleteIcon}</NIcon>
                 </div>
-              </div>
+              </div> */}
             </section>
           ) : null}
 
-          <section class='upload-container-desc'>
-            <span>格式仅支持：{props.ext.join('、')}</span>
-            {props.description.map((item) => {
-              return <p>{item}</p>
-            })}
-          </section>
+          {
+            status.value !== 'preview' ? (
+              <section class='upload-container-desc'>
+                <span>格式仅支持：{props.ext.join('、')}</span>
+                {props.description.map((item) => {
+                  return <p>{item}</p>
+                })}
+              </section>
+            ) : null
+          }
+         
         </section>
       )
     }

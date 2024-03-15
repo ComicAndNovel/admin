@@ -57,7 +57,8 @@ export default defineComponent({
       },
       {
         title: '原名',
-        key: 'original_name',
+        key: 'originalName',
+        width: 200,
       },
       {
         title: 'ISBN',
@@ -65,11 +66,11 @@ export default defineComponent({
       },
       {
         title: '卷号',
-        key: 'volume_number',
+        key: 'volumeNumber'
       },
       {
         title: '总页数',
-        key: 'total_page',
+        key: 'totalPage',
       },
       {
         title: '操作',
@@ -82,7 +83,7 @@ export default defineComponent({
                 name: 'booksDetail',
                 query: {
                   id: row.id,
-                  type: 'novel_volume'
+                  type: 'books_volume'
                 }
               })}>编辑</NButton>
               <NButton type="primary" onClick={() => router.push(`/chapter?id=${row.id}`)}>详情</NButton>
@@ -154,7 +155,13 @@ export default defineComponent({
       const slots = {
         action: () => (
           <NButton onClick={() => {
-            router.push('booksDetail')
+            router.push({
+              name: 'booksDetail',
+              query: {
+                type: 'books_volume',
+                novelId: route.query.id
+              }
+            })
           }}>添加</NButton>
         )
       }

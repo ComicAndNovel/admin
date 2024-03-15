@@ -13,6 +13,7 @@ import {
   NButton,
   NDatePicker,
   NSelect,
+  NImage,
 } from 'naive-ui'
 import dayjs from 'dayjs'
 
@@ -35,8 +36,10 @@ interface FormProps {
   countryId?: number
   languageId?: number
   authorId?: number[]
-  updateStatus?: 1 | 2 | 3
+  publisherId?: number[]
+  updateStatus: 1 | 2 | 3
   bookUrl?: string
+  type?: 'light_novel' | 'comic'
 }
 
 interface ReactiveData {
@@ -44,7 +47,8 @@ interface ReactiveData {
   rules: FormRules
   countryList: Country[]
   languageList: Language[]
-  authorList: Author[]
+  authorList: Author[],
+  publisherList: any
 }
 
 export default defineComponent({
@@ -53,26 +57,52 @@ export default defineComponent({
     const router = useRouter()
     const formRef = ref()
     const loadingRef = ref(false)
-    const novel = route.query.type === 'novel'
+    const books = route.query.type === 'books'
 
     const data = reactive<ReactiveData>({
-      form: {},
+      form: {
+        type: 'light_novel',
+        updateStatus: 1
+      },
       rules: {
         name: {
           required: true,
           message: '请输入译名',
           trigger: 'blur',
         },
-        // originalName: {
-        //   required: true,
-        //   message: '请输入名称',
-        //   trigger: ['blur'],
-        // },
-        // authorId: {
-        //   required: true,
-        //   message: '请选择作者',
-        //   trigger: 'blur'
-        // },
+        originalName: {
+          required: true,
+          message: '请输入名称',
+          trigger: ['blur'],
+        },
+        volumeNumber: {
+          required: true,
+          message: '请输入卷号',
+          type: 'number',
+          trigger: ['blur', 'change']
+        },
+        authorId: {
+          required: true,
+          message: '请选择作者',
+          type: 'array',
+          trigger: 'blur'
+        },
+        description: {
+          required: true,
+          message: '请输入简介',
+          trigger: 'blur'
+        },
+        publisherId: {
+          required: true,
+          message: '请选择出版社',
+          type: 'array',
+          trigger: 'blur'
+        },
+        ISBN: {
+          required: true,
+          message: '请输入ISBN',
+          trigger: ['blur'],
+        },
         // volume: {
         //   required: true,
         //   message: '卷数不能为空',
@@ -80,13 +110,14 @@ export default defineComponent({
         // },
         countryId: {
           required: true,
-          message: '请选择国家/地区',
+          message: '请选择出版国家/地区',
           trigger: ['blur', 'change'],
         },
       },
       countryList: [],
       authorList: [],
       languageList: [],
+      publisherList: []
     })
     const message = useMessage()
     const getData = () => {
@@ -103,6 +134,13 @@ export default defineComponent({
       }).then((res) => {
         data.countryList = res.data
       })
+      http({
+        url: '/publisher/list',
+        method: 'get',
+        data: {},
+      }).then((res) => {
+        data.publisherList = res.data
+      })
     }
 
     const getAuthorList = (name: string = '') => {
@@ -112,7 +150,7 @@ export default defineComponent({
         data: {
           page: 1,
           pageSize: 10,
-          name,
+          name
         },
       }).then((res) => {
         data.authorList = res.data.list
@@ -122,8 +160,7 @@ export default defineComponent({
     const getDetailData = () => {
       if (route.query.id) {
         http({
-          url:
-            route.query.type === 'novel' ? '/novel/detail' : '/volume/detail',
+          url: books ? '/books/detail' : '/volume/detail',
           method: 'get',
           params: {
             id: route.query.id,
@@ -135,6 +172,7 @@ export default defineComponent({
             languageId: res.data.language?.id || null,
             countryId: res.data.country?.id || null,
             authorId: res.data.authors?.map((item: Author) => item.id),
+            publisherId: res.data.publishers?.map((item: Author) => item.id),
           }
         })
       }
@@ -144,7 +182,7 @@ export default defineComponent({
     getAuthorList()
     getData()
 
-    const novelElment = [
+    const booksElment = [
       <NFormItem label='作者：' path='authorId'>
         <NSelect
           multiple
@@ -160,18 +198,18 @@ export default defineComponent({
             console.log(val)
           }}></NSelect>
       </NFormItem>,
-      <NFormItem label='出版社：' path='authorId'>
+      <NFormItem label='出版社：' path='publisherId'>
         <NSelect
           multiple
           remote
           filterable
-          options={data.authorList}
-          value={data.form.authorId}
+          options={data.publisherList}
+          value={data.form.publisherId}
           labelField='name'
           valueField='id'
           onSearch={getAuthorList}
           onUpdate:value={(val) => {
-            data.form.authorId = val
+            data.form.publisherId = val
             console.log(val)
           }}></NSelect>
       </NFormItem>,
@@ -197,12 +235,20 @@ export default defineComponent({
             console.log(val)
           }}></NSelect>
       </NFormItem>,
+      <NFormItem label='类型：'>
+       <NRadioGroup value={data.form.type} onUpdate:value={(val) => {
+         data.form.type = val
+       }}>
+         <NRadio value="light_novel">轻小说</NRadio>
+         <NRadio value="comic">漫画</NRadio>
+       </NRadioGroup>
+     </NFormItem>,
       <NFormItem label='当前状态：'>
         <NRadioGroup value={data.form.updateStatus} onUpdate:value={(val) => {
           data.form.updateStatus = val
         }}>
-          <NRadio value={1}>未更新</NRadio>
-          <NRadio value={2}>更新中</NRadio>
+          <NRadio value={1}>未出版</NRadio>
+          <NRadio value={2}>连载中</NRadio>
           <NRadio value={3}>已完结</NRadio>
         </NRadioGroup>
       </NFormItem>,
@@ -210,7 +256,7 @@ export default defineComponent({
 
     const volumeElement = [
      
-      <NFormItem label='ISBN：' path='name'>
+      <NFormItem label='ISBN：' path='ISBN'>
         <NInput
           clearable
           value={data.form.ISBN}
@@ -230,20 +276,20 @@ export default defineComponent({
             data.form.releaseTime = val
           }}></NDatePicker>
       </NFormItem>,
-      <NFormItem label='卷号：' path='volume'>
+      <NFormItem label='卷号：' path='volumeNumber'>
         <NInputNumber
           value={data.form.volumeNumber}
           onUpdate:value={(val) => {
             data.form.volumeNumber = val as number
           }}></NInputNumber>
       </NFormItem>,
-      <NFormItem label='页数：' path='page'>
-        <NInputNumber
-          value={data.form.totalPage}
-          onUpdate:value={(val) => {
-            data.form.totalPage = val as number
-          }}></NInputNumber>
-      </NFormItem>,
+      // <NFormItem label='总页数：' path='totalPage'>
+      //   <NInputNumber
+      //     value={data.form.totalPage}
+      //     onUpdate:value={(val) => {
+      //       data.form.totalPage = val as number
+      //     }}></NInputNumber>
+      // </NFormItem>,
     ]
 
     return () => {
@@ -261,7 +307,7 @@ export default defineComponent({
             ref={formRef}
             requireMarkPlacement='left'>
             {
-              !novel ? <NFormItem label='书籍内容：' path='cover'>
+              !books ? <NFormItem label='书籍内容：' path='cover'>
               <ImageUpload
                 ext={['epub', 'pdf']}
                 value={data.form.bookUrl}
@@ -274,7 +320,13 @@ export default defineComponent({
               </NFormItem> : null
             }
             <NFormItem label='封面：' path='cover'>
-              <ImageUpload
+              <NImage
+                src={data.form.cover}
+                width={120}
+                previewedImgProps={{
+                  height: 400,
+                }}></NImage>
+              {/* <ImageUpload
                 type='image'
                 value={data.form.cover}
                 ext={['jpg', 'jpeg', 'webp', 'png']}
@@ -283,7 +335,7 @@ export default defineComponent({
                 ]}
                 onRemove={() => {
                   data.form.cover = ''
-                }}></ImageUpload>
+                }}></ImageUpload> */}
             </NFormItem>
             <NFormItem label='作品译名：' path='name'>
               <NInput
@@ -301,7 +353,7 @@ export default defineComponent({
                   data.form.originalName = val
                 }}></NInput>
             </NFormItem>
-            <NFormItem label='作品简介：' path='desc'>
+            <NFormItem label='作品简介：' path='description'>
               <NInput
                 type='textarea'
                 value={data.form.description}
@@ -314,7 +366,7 @@ export default defineComponent({
                 }}></NInput>
             </NFormItem>
             {
-              novel ? novelElment : volumeElement
+              books ? booksElment : volumeElement
             }
             <NFormItem label=' '>
               <NButton
@@ -327,24 +379,21 @@ export default defineComponent({
                     if (!err) {
                       loadingRef.value = true
                       http({
-                        url:
-                          route.query.type === 'novel'
-                            ? '/novel/save'
-                            : '/volume/save',
+                        url: books ? '/books/save' : '/volume/save',
                         method: 'post',
                         headers: {
-                          'Content-Type': 'multipart/form-data',
+                          'Content-Type': !books ? 'multipart/form-data' : 'application/json',
                         },
                         data: {
                           ...data.form,
-                          type: route.query.type,
+                          id: route.query.id,
+                          novelId: route.query.novelId
                         },
                       })
                         .then((res) => {
                           message.success(res.message)
-                          // router.push({
-                          //   name: 'books',
-                          // })
+                         
+                          router.go(-1)
                           console.log(data.form)
                         })
                         .finally(() => {
