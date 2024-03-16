@@ -22,6 +22,10 @@ interface AuthorForm {
 
 export const AuthorModal = defineComponent({
   props: {
+    type: {
+      type: String as PropType<'add' | 'edit'>,
+      default: 'add'
+    },
     show: {
       type: Boolean as PropType<boolean>
     },
@@ -54,6 +58,7 @@ export const AuthorModal = defineComponent({
         countryId: {
           required: true,
           message: '请选择国家/地区',
+          type: 'number',
           trigger: ['blur', 'change']
         }
       }
@@ -62,32 +67,37 @@ export const AuthorModal = defineComponent({
     console.log(data.form)
     const getData = () => {
       http({
-        url: '/country/countryList',
+        url: '/country/list',
         method: 'get'
       }).then(res => {
         data.countryList = res.data
-        console.log(res)
       })
     }
-    watch(() => props.query, (val) => {
-      console.log('=======', val)
-      data.form = {
-        ...val,
-        countryId: val.country?.id
+    watch(() => props.type, val => {
+      if (val !== 'edit') {
+        data.form = {}
       }
-    })
+    }, {immediate: true})
+  
+    watch(() => props.query, (val) => {
+      if (props.type === 'edit') {
+        data.form = {
+          ...val,
+          countryId: val.country?.id
+        }
+      }
+    }, {immediate: true})
 
     getData()
 
-    
     return () => {
       return (
         <NModal 
           show={props.show} 
           preset="card" 
-          title={"添加作者"}
+          title={props.type === 'add' ? '添加作者' : '编辑作者'}
           style={{
-            width: '60vw'
+            width: '500px'
           }}
           maskClosable={false}
           onClose={() => {

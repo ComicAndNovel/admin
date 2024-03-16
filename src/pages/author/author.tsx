@@ -13,7 +13,7 @@ interface Data {
   page: number
   pageSize: number
   total: number
-  authorModalQuery: Partial<Author>
+  // authorModalQuery: Partial<Author>
   query: {
     name?: string,
     originalName?: string,
@@ -30,10 +30,9 @@ export default defineComponent({
       page: 1,
       pageSize: 10,
       total: 0,
-      authorModalQuery: {},
       query: {}
     })
-    const show = ref(false)
+
     const columns = [
       {
         title: '译名',
@@ -72,14 +71,15 @@ export default defineComponent({
               <NButton 
                 onClick={() => {
                   http({
-                    url: '/author/authorDetail',
+                    url: '/author/detail',
                     method: 'get',
                     params: {
                       id: row.id
                     }
                   }).then((res) => {
-                    data.authorModalQuery = res.data
-                    show.value = true
+                    authorModal.type = 'edit'
+                    authorModal.query = res.data
+                    authorModal.show = true
                   })
                 }}>编辑</NButton>
                <NButton type="error" onClick={() => {
@@ -116,10 +116,15 @@ export default defineComponent({
         }
       }
     ]
+    const authorModal = reactive({
+      type: 'add',
+      show: false,
+      query: {}
+    })
 
     const getData = (page = 1) => {
       http({
-        url: '/author/authorList',
+        url: '/author/list',
         method: 'post',
         data: {
           page,
@@ -154,7 +159,8 @@ export default defineComponent({
         ),
         action: () => (
           <NButton onClick={() => {
-            show.value = true
+            authorModal.show = true
+            authorModal.type = 'add'
           }}>添加</NButton>
         )
       }
@@ -174,17 +180,19 @@ export default defineComponent({
                 onUpdate:page={getData}>
               </NPagination>
             </NSpace>
-          <AuthorModal 
-            show={show.value}
-            query={data.authorModalQuery}
+            <AuthorModal 
+            show={authorModal.show}
+            query={authorModal.query}
+            type={authorModal.type as 'add' | 'edit'}
             onConfirm={() => {
-              show.value = false
+                authorModal.show = false
+                getData()
             }}
             onCancel={() => {
-              show.value = false
+              authorModal.show = false
             }}
             onClose={() => {
-              show.value = false
+              authorModal.show = false
             }}
             ></AuthorModal>
           </NSpace>

@@ -36,7 +36,7 @@ http.interceptors.request.use(config => {
 
 http.interceptors.response.use(res => {
   // 对响应数据做点什么
-  if (res.status === 200 || res.status === 201 && res.data.code === 200) {
+  if ((res.status === 200 || res.status === 201) && res.data.code === 200) {
     return toCamelCase(res.data)
   } else {
     message.warning(res.data.message)
