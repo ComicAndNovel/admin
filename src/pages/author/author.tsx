@@ -178,6 +178,11 @@ export default defineComponent({
                 pageSize={data.pageSize} 
                 page={data.page}
                 onUpdate:page={getData}>
+                  {{
+                    prefix: ({itemCount}: {itemCount: number}) => (
+                      <section>总共{itemCount}条</section>
+                    )
+                  }}
               </NPagination>
             </NSpace>
             <AuthorModal 

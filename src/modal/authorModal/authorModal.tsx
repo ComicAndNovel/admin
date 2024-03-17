@@ -63,8 +63,6 @@ export const AuthorModal = defineComponent({
         }
       }
     })
-
-    console.log(data.form)
     const getData = () => {
       http({
         url: '/country/list',
@@ -73,8 +71,8 @@ export const AuthorModal = defineComponent({
         data.countryList = res.data
       })
     }
-    watch(() => props.type, val => {
-      if (val !== 'edit') {
+    watch(() => props.show, () => {
+      if (props.type !== 'edit') {
         data.form = {}
       }
     }, {immediate: true})
@@ -101,11 +99,9 @@ export const AuthorModal = defineComponent({
           }}
           maskClosable={false}
           onClose={() => {
-            console.log(1)
             emit('close')
           }}
           onUpdateShow={() => {
-            console.log(2)
             emit('close')
           }}>
           <NForm 
@@ -153,8 +149,6 @@ export const AuthorModal = defineComponent({
                       })
                     }
                   })
-                 
-                 
                 }}>保存</NButton>
               </NSpace>
               

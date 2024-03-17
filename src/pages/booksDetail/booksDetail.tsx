@@ -1,4 +1,4 @@
-import {defineComponent, reactive, ref} from 'vue'
+import {defineComponent, reactive, ref, shallowRef} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {
   NForm,
@@ -14,6 +14,7 @@ import {
   NDatePicker,
   NSelect,
   NImage,
+  NSpace,
 } from 'naive-ui'
 import dayjs from 'dayjs'
 
@@ -22,6 +23,9 @@ import type {FormRules} from 'naive-ui'
 import http from '../../api/index'
 import {Country, Language} from '../../types/api/common'
 import {Author} from '../../types/api/author'
+import { AuthorModal } from '../../modal/authorModal/authorModal'
+import { PublisherModal } from '../../modal/publisherModal/publisherModal'
+import { update_status } from '../../config'
 
 interface FormProps {
   file?: File | string
@@ -119,6 +123,14 @@ export default defineComponent({
       languageList: [],
       publisherList: []
     })
+    const authorModal = reactive({
+      show: false,
+      query: {}
+    })
+    const publisherModal = reactive({
+      show: false,
+      query: {}
+    })
     const message = useMessage()
     const getData = () => {
       http({
@@ -134,10 +146,15 @@ export default defineComponent({
       }).then((res) => {
         data.countryList = res.data
       })
+    }
+
+    const getPublisherList = (name: string = '') => {
       http({
         url: '/publisher/list',
         method: 'get',
-        data: {},
+        data: {
+          name
+        },
       }).then((res) => {
         data.publisherList = res.data
       })
@@ -145,7 +162,7 @@ export default defineComponent({
 
     const getAuthorList = (name: string = '') => {
       http({
-        url: '/author/authorList',
+        url: '/author/list',
         method: 'post',
         data: {
           page: 1,
@@ -166,7 +183,6 @@ export default defineComponent({
             id: route.query.id,
           },
         }).then((res) => {
-          console.log(res.data)
           data.form = {
             ...res.data,
             languageId: res.data.language?.id || null,
@@ -174,44 +190,58 @@ export default defineComponent({
             authorId: res.data.authors?.map((item: Author) => item.id),
             publisherId: res.data.publishers?.map((item: Author) => item.id),
           }
+          data.authorList = res.data.authors
+          data.publisherList = res.data.publishers
         })
       }
     }
 
     getDetailData()
-    getAuthorList()
     getData()
 
     const booksElment = [
       <NFormItem label='作者：' path='authorId'>
-        <NSelect
-          multiple
-          remote
-          filterable
-          options={data.authorList}
-          value={data.form.authorId}
-          labelField='name'
-          valueField='id'
-          onSearch={getAuthorList}
-          onUpdate:value={(val) => {
-            data.form.authorId = val
-            console.log(val)
-          }}></NSelect>
+        <NSpace>
+          <NSelect
+            multiple
+            remote
+            filterable
+            style="width: 300px;"
+            options={data.authorList}
+            value={data.form.authorId}
+            labelField='name'
+            valueField='id'
+            onSearch={getAuthorList}
+            onUpdate:value={(val) => {
+              data.form.authorId = val
+              console.log(val)
+            }}></NSelect>
+            <NButton onClick={() => {
+              authorModal.show = true
+              getAuthorList()
+            }}>添加</NButton>
+        </NSpace>
       </NFormItem>,
       <NFormItem label='出版社：' path='publisherId'>
-        <NSelect
-          multiple
-          remote
-          filterable
-          options={data.publisherList}
-          value={data.form.publisherId}
-          labelField='name'
-          valueField='id'
-          onSearch={getAuthorList}
-          onUpdate:value={(val) => {
-            data.form.publisherId = val
-            console.log(val)
-          }}></NSelect>
+        <NSpace>
+          <NSelect
+            multiple
+            remote
+            filterable
+            options={data.publisherList}
+            value={data.form.publisherId}
+            style="width: 300px;"
+            labelField='name'
+            valueField='id'
+            onSearch={getPublisherList}
+            onUpdate:value={(val) => {
+              data.form.publisherId = val
+              console.log(val)
+            }}></NSelect>
+          <NButton onClick={() => {
+            publisherModal.show = true
+          }}>添加</NButton>
+        </NSpace>
       </NFormItem>,
       <NFormItem label='出版地区：'>
         <NSelect
@@ -247,9 +277,13 @@ export default defineComponent({
         <NRadioGroup value={data.form.updateStatus} onUpdate:value={(val) => {
           data.form.updateStatus = val
         }}>
-          <NRadio value={1}>未出版</NRadio>
-          <NRadio value={2}>连载中</NRadio>
-          <NRadio value={3}>已完结</NRadio>
+          {
+            Object.entries(update_status).map(item => {
+              return (
+                <NRadio value={+item[0]}>{item[1]}</NRadio>
+              )
+            })
+          }
         </NRadioGroup>
       </NFormItem>,
     ]
@@ -297,7 +331,7 @@ export default defineComponent({
         <section
           style={{
             padding: '20px',
-            width: '400px',
+            width: '600px',
           }}>
           <NForm
             labelPlacement='left'
@@ -309,8 +343,12 @@ export default defineComponent({
             {
               !books ? <NFormItem label='书籍内容：' path='cover'>
               <ImageUpload
-                ext={['epub', 'pdf']}
+                // ext={['epub', 'pdf']}
                 value={data.form.bookUrl}
+                description={[
+                  '书籍格式仅支持 epub、pdf',
+                  '漫画格式仅支持 pdf、zip、rar'
+                ]}
                 onChange={(file) => {
                   data.form.file = file
                 }}
@@ -319,24 +357,18 @@ export default defineComponent({
                 }}></ImageUpload>
               </NFormItem> : null
             }
-            <NFormItem label='封面：' path='cover'>
-              <NImage
-                src={data.form.cover}
-                width={120}
-                previewedImgProps={{
-                  height: 400,
-                }}></NImage>
-              {/* <ImageUpload
-                type='image'
-                value={data.form.cover}
-                ext={['jpg', 'jpeg', 'webp', 'png']}
-                description={[
-                  '如果不上传封面，将默认读取书的封面'
-                ]}
-                onRemove={() => {
-                  data.form.cover = ''
-                }}></ImageUpload> */}
-            </NFormItem>
+            {
+              route.query.id ? (
+                <NFormItem label='封面：' path='cover'>
+                  <NImage
+                    src={data.form.cover}
+                    width={120}
+                    previewedImgProps={{
+                      height: 400,
+                    }}></NImage>
+                </NFormItem>
+              ) : null
+            }
             <NFormItem label='作品译名：' path='name'>
               <NInput
                 clearable
@@ -387,7 +419,7 @@ export default defineComponent({
                         data: {
                           ...data.form,
                           id: route.query.id,
-                          novelId: route.query.novelId
+                          // novelId: route.query.novelId
                         },
                       })
                         .then((res) => {
@@ -406,6 +438,34 @@ export default defineComponent({
               </NButton>
             </NFormItem>
           </NForm>
+          <PublisherModal 
+            show={publisherModal.show}
+            query={publisherModal.query}
+            onConfirm={() => {
+              publisherModal.show = false
+              getPublisherList()
+            }}
+            onCancel={() => {
+              publisherModal.show = false
+            }}
+            onClose={() => {
+              publisherModal.show = false
+            }}
+            ></PublisherModal>
+          <AuthorModal 
+            show={authorModal.show}
+            query={authorModal.query}
+            onConfirm={() => {
+              authorModal.show = false
+              getAuthorList()
+            }}
+            onCancel={() => {
+              authorModal.show = false
+            }}
+            onClose={() => {
+              authorModal.show = false
+            }}
+            ></AuthorModal>
         </section>
       )
     }

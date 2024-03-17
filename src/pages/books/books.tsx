@@ -18,6 +18,7 @@ import {Container} from '../../components/container/container'
 import http from '../../api/index'
 import './style.scss'
 import {Novel} from '../../types/api/novel'
+import { update_status } from '../../config'
 
 export default defineComponent({
   setup() {
@@ -104,10 +105,9 @@ export default defineComponent({
       {
         title: '更新状态',
         key: 'updateStatus',
-      },
-      {
-        title: '文档类型',
-        key: 'contentType',
+        render (row: Novel) {
+          return <span>{update_status[row.updateStatus as keyof typeof update_status]}</span>
+        }
       },
       {
         title: '操作',
@@ -145,7 +145,7 @@ export default defineComponent({
                       d.loading = true
                       return new Promise((resolve) => {
                         http({
-                          url: '/novel/remove',
+                          url: '/books/remove',
                           method: 'delete',
                           params: {
                             id: row.id,

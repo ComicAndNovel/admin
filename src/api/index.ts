@@ -52,11 +52,13 @@ http.interceptors.response.use(res => {
 
     } else {
       if (status.has(err.response.code)) {
-
+        message.warning(status.get(err.response.code) as string)
       } else {
-        message.warning(err.response.message)
+        const msg = err.response.data.message
+        message.warning(Array.isArray(msg) ? msg.join('、') : msg)
       }
     }
+    return Promise.reject(err.response)
   } else {
     console.log('-------')
     return Promise.reject(err.response)

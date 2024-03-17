@@ -127,7 +127,7 @@ export const ImageUpload = defineComponent({
           ) : null}
 
           {
-            status.value !== 'preview' ? (
+            status.value !== 'preview'  && props.ext.length ? (
               <section class='upload-container-desc'>
                 <span>格式仅支持：{props.ext.join('、')}</span>
                 {props.description.map((item) => {
