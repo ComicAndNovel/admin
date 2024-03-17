@@ -13,6 +13,11 @@ export default [
         component: () => import('../pages/author/author')
       },
       {
+        path: '/publisher',
+        name: 'publisher',
+        component: () => import('../pages/publisher/publisher')
+      },
+      {
         path: '/books',
         name: 'books',
         component: () => import('../pages/books/books')

@@ -79,7 +79,7 @@ export default defineComponent({
           return (
             <NSpace vertical>
               <NSpace>
-                {row.publisher?.map((item: {name: string}) => {
+                {row.publishers?.map((item: {name: string}) => {
                   return <NTag>{item.name}</NTag>
                 })}
               </NSpace>

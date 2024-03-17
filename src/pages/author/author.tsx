@@ -85,7 +85,7 @@ export default defineComponent({
                <NButton type="error" onClick={() => {
                 const d = dialog.warning({
                   title: '警告',
-                  content: '是否确定要删除当前行',
+                  content: '是否确定要删除当前行，删除后将无法恢复',
                   positiveText: '确定',
                   negativeText: '取消',
                   onPositiveClick: () => {

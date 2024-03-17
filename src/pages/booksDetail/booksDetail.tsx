@@ -107,6 +107,12 @@ export default defineComponent({
           message: '请输入ISBN',
           trigger: ['blur'],
         },
+        languageId: {
+          required: true,
+          message: '请选择语言',
+          type: 'number',
+          trigger: ['blur'],
+        },
         // volume: {
         //   required: true,
         //   message: '卷数不能为空',
@@ -151,12 +157,14 @@ export default defineComponent({
     const getPublisherList = (name: string = '') => {
       http({
         url: '/publisher/list',
-        method: 'get',
+        method: 'post',
         data: {
+          page: 1,
+          pageSize: 10,
           name
         },
       }).then((res) => {
-        data.publisherList = res.data
+        data.publisherList = res.data.list
       })
     }
 
@@ -254,7 +262,7 @@ export default defineComponent({
             console.log(val)
           }}></NSelect>
       </NFormItem>,
-      <NFormItem label='语言：'>
+      <NFormItem label='语言：' path='languageId'>
         <NSelect
           options={data.languageList}
           value={data.form.languageId}
