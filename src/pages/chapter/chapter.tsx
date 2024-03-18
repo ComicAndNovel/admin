@@ -126,15 +126,19 @@ export default defineComponent({
                             columns={data.columns}
                             {...data?.props}
                             pagination={false}></NDataTable>
-                          <NSpace justify='center'>
-                            <NPagination 
-                              itemCount={data.total} 
-                              pageSize={data.pageSize} 
-                              page={data.page}
-                              onUpdate:page={getData}
-                              v-slots={paginationSlots}>
-                            </NPagination>
-                          </NSpace>
+                            {
+                              key === 'chapter' ? (
+                                <NSpace justify='center'>
+                                  <NPagination 
+                                    itemCount={data.total} 
+                                    pageSize={data.pageSize} 
+                                    page={data.page}
+                                    onUpdate:page={getData}
+                                    v-slots={paginationSlots}>
+                                  </NPagination>
+                                </NSpace>
+                              ) : null
+                            }
                         </NSpace>
                       </NTabPane>
                     )
