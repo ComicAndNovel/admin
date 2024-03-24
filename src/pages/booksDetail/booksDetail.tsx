@@ -204,6 +204,10 @@ export default defineComponent({
       }
     }
 
+    if (!route.query.id) {
+      getAuthorList()
+      getPublisherList()
+    }
     getDetailData()
     getData()
 
@@ -427,7 +431,7 @@ export default defineComponent({
                         data: {
                           ...data.form,
                           id: route.query.id,
-                          // novelId: route.query.novelId
+                          booksId: route.query.booksId
                         },
                       })
                         .then((res) => {

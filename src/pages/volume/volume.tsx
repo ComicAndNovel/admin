@@ -140,7 +140,7 @@ export default defineComponent({
         data: {
           page,
           pageSize: data.pageSize,
-          novel_id: route.query.id
+          books_id: route.query.id
         }
       }).then(res => {
         data.data = res.data.list
@@ -159,7 +159,7 @@ export default defineComponent({
               name: 'booksDetail',
               query: {
                 type: 'books_volume',
-                novelId: route.query.id
+                booksId: route.query.id
               }
             })
           }}>添加</NButton>
