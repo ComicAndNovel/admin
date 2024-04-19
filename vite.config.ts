@@ -25,5 +25,7 @@ export default defineConfig({
   //   }
   // },
   
-  build: {}
+  build: {
+    outDir: process.env.NODE_ENV === 'production' ? 'dist/prod' : 'dist/test',
+  }
 })

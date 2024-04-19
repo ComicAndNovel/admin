@@ -75,6 +75,9 @@ export const AuthorModal = defineComponent({
       if (props.type !== 'edit') {
         data.form = {}
       }
+      if (props.show) {
+        getData()
+      }
     }, {immediate: true})
   
     watch(() => props.query, (val) => {
@@ -85,8 +88,6 @@ export const AuthorModal = defineComponent({
         }
       }
     }, {immediate: true})
-
-    getData()
 
     return () => {
       return (
